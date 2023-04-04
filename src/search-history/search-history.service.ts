@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isUUID } from 'class-validator';
 import { FindManyOptions, Repository } from 'typeorm';
 import { SearchHistory } from './entities/search-history.entity';
 
@@ -26,7 +27,7 @@ export class SearchHistoryService {
       skip: page * limit,
       take: limit,
     };
-    if (sessionId) {
+    if (sessionId && isUUID(sessionId)) {
       filter = {
         where: {
           sessionId,
@@ -34,6 +35,7 @@ export class SearchHistoryService {
         ...filter,
       };
     }
-    return this._searchHistoryRepository.find(filter);
+    const response = await this._searchHistoryRepository.find(filter);
+    return response.map((item) => item.response);
   }
 }
