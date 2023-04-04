@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post, Query } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { lastValueFrom } from 'rxjs';
 import { AgoraWeatherForecastResponse } from './dto/agora-weather-forecast.response';
@@ -22,6 +22,9 @@ export class OpenWeatherController {
     const forecast = await lastValueFrom(
       this._openWeatherService.forecast(req.lat, req.lon),
     );
+    if (!forecast) {
+      throw new NotFoundException('forecast not found');
+    }
     const calculationResult = this._openWeatherService.calculate(forecast.list);
     const result = {
       settings: {
@@ -30,6 +33,7 @@ export class OpenWeatherController {
       },
       forecasts: calculationResult,
     };
+    await this._openWeatherService.logSearchRequest(req.sessionId, result);
     return result;
   }
 }

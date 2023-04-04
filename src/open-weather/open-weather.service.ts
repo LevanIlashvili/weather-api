@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { map, catchError } from 'rxjs';
+import { SearchHistoryService } from 'src/search-history/search-history.service';
 import { formatLocation } from '../utils/utils';
 import { AgoraWeatherForecast } from './dto/agora-weather-forecast.response';
 import { OpenWeatherForecast } from './dto/open-weather-forecast.types';
@@ -17,6 +18,7 @@ export class OpenWeatherService {
   constructor(
     private readonly _configService: ConfigService,
     private readonly _httpService: HttpService,
+    private readonly _searchHistoryService: SearchHistoryService,
   ) {
     this.API_KEY = _configService.get('OPEN_WEATHER_API_KEY');
   }
@@ -45,7 +47,6 @@ export class OpenWeatherService {
 
   forecast(lat: number, lon: number) {
     const url = `${this.OPEN_WEATHER_API_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.API_KEY}&units=metric`;
-    console.log(url);
     return this._httpService
       .get<OpenWeatherForecastResponse>(url)
       .pipe(map((res) => res.data))
@@ -97,5 +98,9 @@ export class OpenWeatherService {
       response.push(stats);
     }
     return response;
+  }
+
+  logSearchRequest(sessionId: string, response: any) {
+    this._searchHistoryService.insert(sessionId, response);
   }
 }
