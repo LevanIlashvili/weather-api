@@ -1,3 +1,4 @@
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
@@ -24,50 +25,43 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Weather API is a very simple API for querying and persisting weather forecasts
 
-## Installation
 
-```bash
-$ npm install
-```
+### Dependencies
+- NodeJS
+- Yarn
+- PostgreSQL 15
 
-## Running the app
+### Setup 
 
-```bash
-# development
-$ npm run start
+#### Environment Variables
+Project depends on 3 environment variables
+````
+PORT - tells API what port to listen for incoming HTTP requests
+OPEN_WEATHER_API_KEY - API key for querying data from OpenWeatherAPI
+DATABASE - postgres connection string 
+````
 
-# watch mode
-$ npm run start:dev
+You will find `.env.example` in root directory. You can use that a sample for creating `.env` file, which must be placed in the root directory as well. 
 
-# production mode
-$ npm run start:prod
-```
+#### Migrations
 
-## Test
+TypeORM will do automatic sync of the database table(s)
 
-```bash
-# unit tests
-$ npm run test
+#### Installing dependencies 
+In the root folder of this project, simply run 
 
-# e2e tests
-$ npm run test:e2e
+````
+yarn install
+````
 
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+#### Running
+After setting up environment variables and installing dependencies, you can run project by running following command in root directory: 
+````
+yarn start
+````
+or run it in watch mode
+````
+yarn start:dev
+````
