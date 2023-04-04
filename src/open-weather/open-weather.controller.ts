@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { lastValueFrom } from 'rxjs';
 import { ForecastRequestDto } from './dto/forecast.request';
 import { OpenWeatherService } from './open-weather.service';
 
@@ -13,7 +14,6 @@ export class OpenWeatherController {
 
   @Post('forecast')
   forecast(@Body() req: ForecastRequestDto) {
-    //TODO actual code.
-    return req;
+    return lastValueFrom(this._openWeatherService.forecast(req.lat, req.lon));
   }
 }

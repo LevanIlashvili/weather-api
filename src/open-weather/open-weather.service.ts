@@ -1,8 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { map, catchError } from 'rxjs';
+import { map, catchError, lastValueFrom } from 'rxjs';
 import { formatLocation } from '../utils/utils';
+import { GeocodeResponse } from './dto/geocode.response';
+import {
+  OpenWeatherForecast,
+  OpenWeatherForecastResponse,
+  OpenWeatherGeocodeItem,
+} from './dto/open-weather-forecast';
 
 @Injectable()
 export class OpenWeatherService {
@@ -15,11 +21,11 @@ export class OpenWeatherService {
     this.API_KEY = _configService.get('OPEN_WEATHER_API_KEY');
   }
 
-  async lookup(query: string) {
+  lookup(query: string) {
     // Using OpenWeatherMap's Geocoding API to retrieve list of available locations by query
     const url = `${this.OPEN_WEATHER_API_URL}/geo/1.0/direct?q=${query}&limit=5&appid=${this.API_KEY}`;
     return this._httpService
-      .get(url)
+      .get<OpenWeatherGeocodeItem[]>(url)
       .pipe(
         map((res) => res.data),
         map((data) =>
@@ -36,9 +42,21 @@ export class OpenWeatherService {
             };
           }),
         ),
-        map((locations) => {
-          return locations;
+      )
+      .pipe(
+        catchError(() => {
+          throw new NotFoundException('Not found');
         }),
+      );
+  }
+
+  forecast(lat: number, lon: number) {
+    const url = `${this.OPEN_WEATHER_API_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.API_KEY}`;
+    return this._httpService
+      .get<OpenWeatherForecastResponse>(url)
+      .pipe(
+        map((res) => res.data),
+        map((data) => data.list),
       )
       .pipe(
         catchError(() => {
