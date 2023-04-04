@@ -27,20 +27,13 @@ export class OpenWeatherService {
     return this._httpService
       .get<OpenWeatherGeocodeItem[]>(url)
       .pipe(
-        map((res) => res.data),
-        map((data) =>
-          data.map((location) => {
-            return {
-              name: location.name,
-              fullName: formatLocation(
-                location.name,
-                location.state,
-                location.country,
-              ),
-              lat: location.lat,
-              lon: location.lon,
-            };
-          }),
+        map(({ data }) =>
+          data.map(({ name, state, country, lat, lon }) => ({
+            name,
+            fullName: formatLocation(name, state, country),
+            lat,
+            lon,
+          })),
         ),
       )
       .pipe(
