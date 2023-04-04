@@ -16,6 +16,11 @@ export class OpenWeatherForecast {
 
 export class OpenWeatherForecastResponse {
   list: OpenWeatherForecast[];
+  city: {
+    timezone: number;
+    sunrise: number;
+    sunset: number;
+  };
 }
 
 export class OpenWeatherGeocodeItem {

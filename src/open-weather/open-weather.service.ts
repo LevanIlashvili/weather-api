@@ -1,14 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { map, catchError, lastValueFrom } from 'rxjs';
+import { map, catchError } from 'rxjs';
 import { formatLocation } from '../utils/utils';
-import { GeocodeResponse } from './dto/geocode.response';
+import { AgoraWeatherForecast } from './dto/agora-weather-forecast.response';
+import { OpenWeatherForecast } from './dto/open-weather-forecast.types';
 import {
-  OpenWeatherForecast,
   OpenWeatherForecastResponse,
   OpenWeatherGeocodeItem,
-} from './dto/open-weather-forecast';
+} from './dto/open-weather-forecast.types';
 
 @Injectable()
 export class OpenWeatherService {
@@ -51,17 +51,57 @@ export class OpenWeatherService {
   }
 
   forecast(lat: number, lon: number) {
-    const url = `${this.OPEN_WEATHER_API_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.API_KEY}`;
+    const url = `${this.OPEN_WEATHER_API_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.API_KEY}&units=metric`;
     return this._httpService
       .get<OpenWeatherForecastResponse>(url)
-      .pipe(
-        map((res) => res.data),
-        map((data) => data.list),
-      )
+      .pipe(map((res) => res.data))
       .pipe(
         catchError(() => {
           throw new NotFoundException('Not found');
         }),
       );
+  }
+
+  calculate(items: OpenWeatherForecast[]): AgoraWeatherForecast[] {
+    const response: AgoraWeatherForecast[] = [];
+    // Pick up unique dates from forecast items
+    const uniqueDates = [
+      ...new Set(items.map((item) => item.dt_txt.substring(0, 10))),
+    ]
+      .sort()
+      .slice(0, 5);
+
+    // iterate through dates and find min, max temp with hours
+    for (const date of uniqueDates) {
+      const stats: AgoraWeatherForecast = {
+        date,
+        temperature: {
+          min: {
+            celsius: Number.MAX_SAFE_INTEGER,
+            timestamp: null,
+          },
+          max: {
+            celsius: Number.MIN_SAFE_INTEGER,
+            timestamp: null,
+          },
+        },
+      };
+      // pick date's forecasts
+      const dailyForecasts = items.filter((item) =>
+        item.dt_txt.startsWith(date),
+      );
+      for (const forecast of dailyForecasts) {
+        if (stats.temperature.max.celsius < forecast.main.temp_max) {
+          stats.temperature.max.celsius = forecast.main.temp_max;
+          stats.temperature.max.timestamp = forecast.dt;
+        }
+        if (stats.temperature.min.celsius > forecast.main.temp_min) {
+          stats.temperature.min.celsius = forecast.main.temp_min;
+          stats.temperature.min.timestamp = forecast.dt;
+        }
+      }
+      response.push(stats);
+    }
+    return response;
   }
 }

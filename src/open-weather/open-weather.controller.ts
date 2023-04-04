@@ -13,7 +13,16 @@ export class OpenWeatherController {
   }
 
   @Post('forecast')
-  forecast(@Body() req: ForecastRequestDto) {
-    return lastValueFrom(this._openWeatherService.forecast(req.lat, req.lon));
+  async calculateForecast(@Body() req: ForecastRequestDto) {
+    const forecast = await lastValueFrom(
+      this._openWeatherService.forecast(req.lat, req.lon),
+    );
+    const calculationResult = this._openWeatherService.calculate(forecast.list);
+    return {
+      settings: {
+        timezoneDiff: forecast.city.timezone,
+      },
+      forecasts: calculationResult,
+    };
   }
 }
