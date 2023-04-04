@@ -11,3 +11,10 @@ export class AgoraWeatherForecast {
     };
   };
 }
+
+export class AgoraWeatherForecastResponse {
+  settings: {
+    timezoneDiff: number;
+  };
+  forecasts: AgoraWeatherForecast[];
+}
