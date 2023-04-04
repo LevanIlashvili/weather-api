@@ -20,6 +20,7 @@ export class OpenWeatherForecastResponse {
     timezone: number;
     sunrise: number;
     sunset: number;
+    name: string;
   };
 }
 

@@ -23,11 +23,13 @@ export class OpenWeatherController {
       this._openWeatherService.forecast(req.lat, req.lon),
     );
     const calculationResult = this._openWeatherService.calculate(forecast.list);
-    return {
+    const result = {
       settings: {
         timezoneDiff: forecast.city.timezone,
+        city: req.city,
       },
       forecasts: calculationResult,
     };
+    return result;
   }
 }

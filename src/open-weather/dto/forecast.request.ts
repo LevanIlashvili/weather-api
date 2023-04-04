@@ -1,14 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsUUID } from 'class-validator';
+import { IsLatitude, IsLongitude, IsString, IsUUID } from 'class-validator';
 
 export class ForecastRequestDto {
   @ApiProperty()
-  @IsNumber()
+  @IsLatitude()
   lat: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsLongitude()
   lon: number;
+
+  @ApiProperty()
+  @IsString()
+  city: string;
 
   @ApiProperty()
   @IsUUID()

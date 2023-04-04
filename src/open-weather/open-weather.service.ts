@@ -45,6 +45,7 @@ export class OpenWeatherService {
 
   forecast(lat: number, lon: number) {
     const url = `${this.OPEN_WEATHER_API_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${this.API_KEY}&units=metric`;
+    console.log(url);
     return this._httpService
       .get<OpenWeatherForecastResponse>(url)
       .pipe(map((res) => res.data))
